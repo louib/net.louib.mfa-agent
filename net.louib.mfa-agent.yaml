@@ -1,0 +1,33 @@
+---
+app-id: net.louib.mfa-agent
+runtime: org.gnome.Platform
+runtime-version: master
+sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-nightly
+build-options:
+  append-path: "/usr/lib/sdk/rust-nightly/bin"
+  build-args:
+    - "--share=network"
+command: /app/bin/mfa-agent
+tags:
+  - nightly
+finish-args:
+  - "--allow=bluetooth"
+  - "--share=network"
+  - "--share=ipc"
+  - "--socket=fallback-x11"
+  - "--socket=wayland"
+  # FIXME this should be avoided, see https://docs.flatpak.org/en/latest/sandbox-permissions.html#d-bus-access
+  - "--socket=system-bus"
+  - "--device=dri"
+  - "--env=MFA_AGENT_LOG_LEVEL=info"
+  - "--env=RUST_BACKTRACE=1"
+modules:
+  - name: mfa-agent
+    sources:
+      - type: git
+        url: https://github.com/louib/mfa-agent.git
+    buildsystem: simple
+    build-commands:
+      - OUT_DIR=./src/ui /usr/lib/sdk/rust-nightly/bin/cargo install --force --path . --root /app
